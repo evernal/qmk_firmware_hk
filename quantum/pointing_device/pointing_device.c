@@ -335,25 +335,7 @@ __attribute__((weak)) bool pointing_device_task(void) {
     // combine with mouse report to ensure that the combined is sent correctly
 #ifdef MOUSEKEY_ENABLE
     report_mouse_t mousekey_report = mousekey_get_report();
-    // Merge mousekey buttons and motion into the pointing-device report so
-    // wheel/movement keys (e.g. KC_MS_WH_UP) are sent when a pointing device
-    // driver (trackball/ps2/etc.) is active.
-    local_mouse_report.buttons |= mousekey_report.buttons;
-
-    // Merge movement/scroll fields. Use addition so both pointing device and
-    // mousekey contributions are preserved.
-    local_mouse_report.x += mousekey_report.x;
-    local_mouse_report.y += mousekey_report.y;
-    local_mouse_report.h += mousekey_report.h;
-    local_mouse_report.v += mousekey_report.v;
-
-    // Clamp values to HID limits to avoid overflow.
-    local_mouse_report.x = CONSTRAIN_HID_XY(local_mouse_report.x);
-    local_mouse_report.y = CONSTRAIN_HID_XY(local_mouse_report.y);
-    if (local_mouse_report.h < MOUSE_REPORT_HV_MIN) local_mouse_report.h = MOUSE_REPORT_HV_MIN;
-    if (local_mouse_report.h > MOUSE_REPORT_HV_MAX) local_mouse_report.h = MOUSE_REPORT_HV_MAX;
-    if (local_mouse_report.v < MOUSE_REPORT_HV_MIN) local_mouse_report.v = MOUSE_REPORT_HV_MIN;
-    if (local_mouse_report.v > MOUSE_REPORT_HV_MAX) local_mouse_report.v = MOUSE_REPORT_HV_MAX;
+    local_mouse_report.buttons     = local_mouse_report.buttons | mousekey_report.buttons;
 #endif
 
     const bool send_report     = pointing_device_send() || pointing_device_force_send;
